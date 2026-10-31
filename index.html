@@ -11,21 +11,26 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="栽培管理">
 <style>
-:root{font-family:system-ui,sans-serif;color:#24332a;background:#f4f7f3}
+:root{font-family:system-ui,sans-serif;color:#24332a;background:#f4f7f3;--accent:#286344;--soft:#edf5ed}
+/* タブごとの色（朝＝オレンジ、夕方＝青、記録＝緑） */
+body.tab-morning{--accent:#b4530a;--soft:#fff2e3}
+body.tab-evening{--accent:#1d4f91;--soft:#eaf1fb}
+body.tab-records{--accent:#286344;--soft:#edf5ed}
 *{box-sizing:border-box}
 body{margin:0 auto;padding:0 14px 14px;max-width:920px;background:#f4f7f3}
-h1{font-size:25px;margin:8px 0}h2{font-size:20px;margin:0 0 8px}
-.card{background:#fff;padding:16px;border-radius:15px;margin:12px 0;box-shadow:0 2px 8px #0000000c}
-label{display:block;font-weight:650;margin:12px 0 6px}
+h1{font-size:22px;margin:10px 0 4px}h2{font-size:20px;margin:0 0 8px;color:var(--accent)}
+.card{background:#fff;padding:16px;border-radius:15px;margin:12px 0;box-shadow:0 2px 8px #0000000c;border-top:5px solid var(--accent)}
+label{display:block;font-weight:650;margin:14px 0 6px}
+label b.hn{color:var(--accent);font-size:1.12em}
 input,select{font:inherit;font-size:19px;padding:12px;width:100%;min-height:48px;border:1px solid #aab8ad;border-radius:9px;background:#fff;color:#24332a}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tabs{display:flex;gap:8px;margin:12px 0}
 .tabs button{flex:1;padding:13px 4px;background:#fff;color:#264332;border:1px solid #aab8ad;border-radius:10px;font-size:18px;font-weight:700}
-.tabs button.on{background:#286344;color:#fff;border-color:#286344}
-.primary{width:100%;padding:15px;font-size:20px;font-weight:700;border:0;border-radius:10px;background:#286344;color:#fff;margin-top:14px}
+.tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.primary{width:100%;padding:15px 8px;font-size:19px;font-weight:700;border:0;border-radius:10px;background:var(--accent);color:#fff;margin-top:18px;line-height:1.35}
 button:disabled{opacity:.6}
 .note{font-size:14px;color:#5b6a60;line-height:1.6}
-.result{font-size:18px;font-weight:700;background:#edf5ed;padding:12px;border-radius:9px;margin-top:10px}
+.result{font-size:17px;font-weight:700;background:var(--soft);padding:12px;border-radius:9px;margin-top:10px}
 .status{white-space:pre-wrap;font-weight:650;margin-top:10px;min-height:1.5em}
 .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:6px 12px;margin:8px 0}
 .checks label{display:flex;align-items:center;gap:7px;margin:2px 0;font-size:15px;font-weight:500}
@@ -40,20 +45,21 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-space:nowrap}
 .wrap{overflow-x:auto}
 .wrap th:first-child,.wrap td:first-child{position:sticky;left:0;background:#fff;z-index:1;box-shadow:1px 0 0 #e2e8e3}
-.keys{display:flex;gap:8px;margin:8px 0 0}
-.keys button{flex:1;min-height:44px;font-size:20px;font-weight:700;background:#edf5ed;color:#264332;border:1px solid #aab8ad;border-radius:9px}
-.calc{font-size:16px;font-weight:700;color:#286344;min-height:1.4em;margin-top:6px}
-.calc.err{color:#b42318}
 .tabs.small button{padding:9px 4px;font-size:16px}
-.more{width:100%;padding:12px;font-size:17px;font-weight:700;border:1px solid #286344;border-radius:10px;background:#fff;color:#286344;margin-top:10px}
-/* 記録日の帯（スクロールしても上に残る） */
-#dateBar{position:sticky;top:0;z-index:20;margin:0 -14px;padding:10px 14px;background:#286344;color:#fff;font-size:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer;box-shadow:0 2px 6px #00000026}
+.more{width:100%;padding:12px;font-size:17px;font-weight:700;border:1px solid var(--accent);border-radius:10px;background:#fff;color:var(--accent);margin-top:10px}
+/* 上に固定：記録日の帯とタブ */
+#top{position:sticky;top:0;z-index:20;margin:0 -14px;box-shadow:0 2px 6px #00000026}
+#dateBar{padding:9px 14px;background:var(--accent);color:#fff;font-size:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer}
 #dateBar b{font-size:21px}
 #barWarn{background:#fde68a;color:#7a2e0e;font-size:14px;font-weight:700;padding:2px 8px;border-radius:6px}
+#mainTabs{display:flex;background:#fff}
+#mainTabs button{flex:1;padding:12px 2px;font-size:17px;font-weight:700;border:0;border-bottom:4px solid transparent;background:#fff;color:#5b6a60}
+#mainTabs button[data-tab=morning]{--c:#b4530a}#mainTabs button[data-tab=evening]{--c:#1d4f91}#mainTabs button[data-tab=records]{--c:#286344}
+#mainTabs button.on{color:var(--c);border-bottom-color:var(--c);background:#fafafa}
 /* 朝の入力：3ハウス分の表 */
 .mt{table-layout:fixed;font-size:15px;margin-top:12px}
 .mt th,.mt td{padding:5px 3px;white-space:normal;border-bottom:0;vertical-align:middle}
-.mt thead th{text-align:center;font-size:17px}
+.mt thead th{text-align:center;font-size:17px;color:var(--accent)}
 .mt th:first-child{width:88px;font-size:14px;line-height:1.3}
 .mt input{font-size:18px;padding:8px 6px;min-height:46px;text-align:center}
 .mt .sub{display:block;font-weight:400;color:#5b6a60;font-size:12px}
@@ -61,12 +67,23 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
 .fuelline{display:grid;grid-template-columns:88px 1fr 1fr 1fr;gap:3px;font-size:15px;text-align:center;padding:4px 0}
 .fuelline span:first-child{text-align:left;font-weight:650;font-size:14px}
 .fuelline .warn{color:#b42318;font-weight:700}
-.confirm{margin-top:14px;padding:10px 12px;border:2px solid #286344;border-radius:9px;font-size:17px;font-weight:700;text-align:center;color:#286344;background:#f2f8f3}
-@media(max-width:520px){body{padding:0 9px 9px}#dateBar{margin:0 -9px;padding:10px 9px}.card{padding:12px}.row{gap:8px}.checks{grid-template-columns:1fr 1fr}.fuelline{grid-template-columns:76px 1fr 1fr 1fr}.mt th:first-child{width:76px}}
+/* 排液量・何日分・F を1行に */
+.drow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.drow input{text-align:center}
+.fbtn{font:inherit;font-size:15px;font-weight:700;padding:0 10px;border:2px solid #b42318;border-radius:9px;background:#fff;color:#b42318;line-height:1.2}
+.fbtn.on{background:#b42318;color:#fff}
+@media(max-width:520px){body{padding:0 9px 9px}#top{margin:0 -9px}#dateBar{padding:9px}.card{padding:12px}.row{gap:8px}.checks{grid-template-columns:1fr 1fr}.fuelline{grid-template-columns:76px 1fr 1fr 1fr}.mt th:first-child{width:76px}.fbtn{font-size:14px;padding:0 7px}}
 </style>
 </head>
-<body>
-<div id="dateBar" role="button" aria-label="記録日を変える"><span>記録日</span><b id="barDate">―</b><span id="barWarn" style="display:none">今日ではありません</span></div>
+<body class="tab-morning">
+<div id="top">
+  <div id="dateBar" role="button" aria-label="記録日を変える"><span>記録日</span><b id="barDate">―</b><span id="barWarn" style="display:none">今日ではありません</span></div>
+  <div id="mainTabs" role="tablist" style="display:none">
+    <button type="button" role="tab" data-tab="morning">朝</button>
+    <button type="button" role="tab" data-tab="evening">夕方</button>
+    <button type="button" role="tab" data-tab="records">記録・グラフ</button>
+  </div>
+</div>
 <h1>春香園 栽培管理</h1>
 
 <div class="card" id="keyCard" style="display:none">
@@ -79,6 +96,7 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
 </div>
 
 <div id="app" style="display:none">
+<section data-tab="morning">
 <div class="card">
   <h2>朝の入力</h2>
   <label for="date">記録日</label><input id="date" type="date">
@@ -94,7 +112,9 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
   <button class="primary" id="mSaveBtn" type="button">朝の記録を保存</button>
   <div class="status" id="mStatus" role="status" aria-live="polite"></div>
 </div>
+</section>
 
+<section data-tab="evening" hidden>
 <div class="card">
   <h2>夕方の入力（ハウス別）</h2>
   <div class="tabs" id="houseTabs">
@@ -104,58 +124,59 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
   </div>
   <div class="note" id="bedNote">ベッド数：14</div>
 
-  <label for="dilution">給液の倍率（倍）</label>
+  <label for="dilution"><b class="hn">0番</b>の給液の倍率（倍）</label>
   <input id="dilution" type="number" min="1" step="any" inputmode="decimal" placeholder="空欄なら前回値">
 
   <div id="volBox">
-    <label for="irrigationVolume">1日の給液量（L／ハウス）</label>
-    <input id="irrigationVolume" type="text" inputmode="decimal" placeholder="数字、または計算式（例：120+85+60）" autocomplete="off">
-    <div class="calc" id="volCalc"></div>
+    <label for="irrigationVolume"><b class="hn">0番</b>の1日の給液量（L）</label>
+    <input id="irrigationVolume" type="number" min="0" step="any" inputmode="decimal" placeholder="L">
   </div>
   <div id="secBox" style="display:none">
-    <label for="irrigationSeconds">1日の給液時間（秒）</label>
-    <input id="irrigationSeconds" type="text" inputmode="decimal" placeholder="数字、または計算式（例：60+90+120）" autocomplete="off">
-    <div class="calc" id="secCalc"></div>
+    <label for="irrigationSeconds"><b class="hn">0番</b>の1日の給液時間（秒）</label>
+    <input id="irrigationSeconds" type="number" min="0" step="any" inputmode="decimal" placeholder="秒">
   </div>
-  <div class="keys" id="exprKeys"><button type="button" data-k="+">＋</button><button type="button" data-k="*">×</button><button type="button" data-k="(">（</button><button type="button" data-k=")">）</button><button type="button" data-k=".">．</button></div>
-  <div class="note">給液量・給液時間は、計算式でも入力できます（例：<b>(60+90+120)*0.7</b>）。保存されるのは計算結果の数字です。</div>
-  <label for="drainagePerBed">1ベッド当たりの排液量（L）</label>
-  <input id="drainagePerBed" type="text" inputmode="decimal" placeholder="数値、またはタンク上限超過なら F" autocomplete="off">
-  <label for="mergeDays">この排液量は何日分ですか</label>
-  <select id="mergeDays">
-    <option value="1">1日分（ふつう）</option>
-    <option value="2">2日分（前日とまとめて測った）</option>
-    <option value="3">3日分</option>
-    <option value="4">4日分</option>
-    <option value="5">5日分</option>
-    <option value="6">6日分</option>
-    <option value="7">7日分</option>
-  </select>
+
+  <label for="drainagePerBed"><b class="hn">0番</b>の1ベッド排液量（L）と日数</label>
+  <div class="drow">
+    <input id="drainagePerBed" type="text" inputmode="decimal" placeholder="L" autocomplete="off">
+    <select id="mergeDays" aria-label="この排液量は何日分か">
+      <option value="1">1日分</option><option value="2">2日分</option><option value="3">3日分</option><option value="4">4日分</option>
+      <option value="5">5日分</option><option value="6">6日分</option><option value="7">7日分</option>
+    </select>
+    <button type="button" class="fbtn" id="fBtn" aria-pressed="false">F<br>上限超過</button>
+  </div>
   <div class="note" id="mergeNote"></div>
-  <div class="note">2日分以上のときは、前の日の排液ECが同じ値で自動で入ります。<span id="ratioNote">排液率は、日数分の給液量で計算します。</span></div>
-  <div class="result" id="drainageTotal">排液総量：未入力</div>
-  <div class="result" id="drainageRatio">排液率：未入力</div>
+  <div class="note">前の日とまとめて測ったときは「2日分」以上を選びます。前の日の排液ECも同じ値で入ります。</div>
 
   <div class="row">
-    <div><label for="irrigationEC">給液EC</label><input id="irrigationEC" type="number" min="0" step="any" inputmode="decimal" placeholder="空欄なら前回値"></div>
-    <div><label for="drainageEC">排液EC</label><input id="drainageEC" type="number" min="0" step="any" inputmode="decimal" placeholder="EC"></div>
+    <div><label for="irrigationEC"><b class="hn">0番</b>の給液EC</label><input id="irrigationEC" type="number" min="0" step="any" inputmode="decimal" placeholder="空欄なら前回値"></div>
+    <div><label for="drainageEC"><b class="hn">0番</b>の排液EC</label><input id="drainageEC" type="number" min="0" step="any" inputmode="decimal" placeholder="EC"></div>
   </div>
-  <div class="note">原水ECは0.14で計算します。倍率・給液ECを空欄にすると、同じハウスの前回値を使います。</div>
+  <div class="note">倍率・給液ECを空欄にすると、同じハウスの前回値で保存します。</div>
   <div class="row">
-    <div><label for="fertName">肥料名</label><input id="fertName" type="text" placeholder="例：カルシウム" autocomplete="off"></div>
-    <div><label for="fertAmount">肥料の量（g）</label><input id="fertAmount" type="number" min="0" step="any" inputmode="decimal" placeholder="g"></div>
+    <div><label for="fertName"><b class="hn">0番</b>の肥料名</label><input id="fertName" type="text" placeholder="例：カルシウム" autocomplete="off"></div>
+    <div><label for="fertAmount"><b class="hn">0番</b>の肥料の量（g）</label><input id="fertAmount" type="number" min="0" step="any" inputmode="decimal" placeholder="g"></div>
   </div>
   <div class="note">肥料は、給液に追加した日だけ入力してください。</div>
-  <div class="result" id="ecBalance">EC差分指標：計算待ち</div>
-  <div class="note" id="fNote">Fの日は排液率とEC差分指標を計算しません。</div>
-  <div class="confirm" id="eConfirm"></div>
-  <button class="primary" id="saveBtn" type="button">このハウスの記録を保存</button>
+  <button class="primary" id="saveBtn" type="button">記録を保存</button>
   <div class="status" id="status" role="status" aria-live="polite"></div>
 </div>
+</section>
 
+<section data-tab="records" hidden>
 <div class="card">
   <h2>記録・グラフ</h2>
-  <div class="note">複数項目を同時に表示できます。グラフは左右にスクロールすると、1年分まで見られます（最初は最新の日付が右端です）。</div>
+  <div class="tabs small" id="gHouseTabs">
+    <button type="button" data-gh="0番" class="on">0番</button>
+    <button type="button" data-gh="2番">2番</button>
+    <button type="button" data-gh="3番">3番</button>
+  </div>
+  <div class="tabs small" id="presets">
+    <button type="button" data-p="temp">気温</button>
+    <button type="button" data-p="water">給液と排液</button>
+    <button type="button" data-p="ec">EC</button>
+  </div>
+  <div class="note">下の項目から選んでも表示できます。同じ単位の項目は同じ縦軸です。グラフは左右にスクロールすると1年分まで見られます。</div>
   <div class="checks" id="metrics"></div>
   <div class="tabs"><button type="button" id="dailyBtn" class="on">日別（1年）</button><button type="button" id="weeklyBtn">週別（1年）</button></div>
   <div class="legend" id="legend"></div>
@@ -178,6 +199,7 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
   <button type="button" class="more" id="moreBtn" style="display:none">もっと見る（1年分まで）</button>
   <div id="historyNote" class="note">記録を読み込み中です。</div>
 </div>
+</section>
 <div class="note">記録は専用のGoogleスプレッドシートに保存されます。</div>
 </div>
 
@@ -186,15 +208,20 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
 // 保存先（GAS のウェブアプリのアドレス）
 var API_URL = 'https://script.google.com/macros/s/AKfycbzeya9T_BCQd7g4VvTgHA4iU4ic8uCTYt_S6G0-ohoyNO5gHdPG0D3XwGtKYmLhRoCEIQ/exec';
 var HOUSE_LIST = ['0番', '2番', '3番'];
-var RAW = 0.14, house = '0番', beds = {'0番':14,'2番':11,'3番':11}, records = [], weathers = [], fuels = [], period = 'daily', busy = true, byKey = {}, fuelBy = {};
+var house = '0番', gHouse = '0番', beds = {'0番':14,'2番':11,'3番':11}, records = [], weathers = [], fuels = [], period = 'daily', busy = true, byKey = {}, fuelBy = {}, tab = 'morning';
 var $ = function (id) { return document.getElementById(id); };
+// group が同じ項目は同じ縦軸を使う
 var METRICS = {
-  irrigationVolume:{label:'給液量',unit:'L',sum:1}, drainageTotal:{label:'排液量',unit:'L',sum:1},
-  drainageRatio:{label:'排液率',unit:'%'}, irrigationEC:{label:'給液EC',unit:'EC'}, drainageEC:{label:'排液EC',unit:'EC'},
-  highTemp:{label:'最高気温',unit:'℃'}, lowTemp:{label:'最低気温',unit:'℃'}, ecBalance:{label:'EC差分指標',unit:''}, dilution:{label:'倍率',unit:'倍',rev:1},
-  irrigationSeconds:{label:'給液時間',unit:'秒',sum:1}, fuelUsage:{label:'重油使用量',unit:'L',sum:1}
+  highTemp:{label:'最高気温',unit:'℃',group:'temp'}, lowTemp:{label:'最低気温',unit:'℃',group:'temp'},
+  irrigationVolume:{label:'給液量',unit:'L',sum:1,group:'water'}, drainageTotal:{label:'排液量',unit:'L',sum:1,group:'water'},
+  irrigationSeconds:{label:'給液時間',unit:'秒',sum:1,group:'sec'},
+  irrigationEC:{label:'給液EC',unit:'EC',group:'ec'}, drainageEC:{label:'排液EC',unit:'EC',group:'ec'},
+  drainageRatio:{label:'排液率',unit:'%',group:'ratio'}, ecBalance:{label:'EC差分指標',unit:'',group:'bal'},
+  dilution:{label:'倍率',unit:'倍',rev:1,group:'dil'}, fuelUsage:{label:'重油使用量',unit:'L',sum:1,group:'fuel'}
 };
-var COLORS = ['#18794e','#1769aa','#c2410c','#7e22ce','#be123c','#0f766e','#a16207','#334155','#0369a1','#b45309','#4d7c0f'];
+var GROUP_STEP = {ec: 0.1, dil: 100};
+var PRESETS = {temp: ['highTemp', 'lowTemp'], water: ['irrigationVolume', 'drainageTotal'], ec: ['irrigationEC', 'drainageEC']};
+var COLORS = ['#c2410c','#1769aa','#18794e','#0369a1','#7e22ce','#be123c','#0f766e','#a16207','#334155','#b45309','#4d7c0f'];
 var WX = {'晴れ':'☀️','曇り':'☁️','雨（雪）':'☔'};
 var WD = ['日','月','火','水','木','金','土'];
 var MROWS = [
@@ -206,7 +233,7 @@ function jpDate(s) { var d = new Date(s + 'T12:00:00'); return (d.getMonth() + 1
 function wxIcon(d) { var w = weathers.filter(function (x) { return x.date === d; })[0]; return w && WX[w.weather] ? WX[w.weather] : ''; }
 Object.keys(METRICS).forEach(function (k, i) {
   METRICS[k].color = COLORS[i];
-  $('metrics').insertAdjacentHTML('beforeend', '<label><input type="checkbox" value="' + k + '"' + (i === 0 ? ' checked' : '') + '>' + METRICS[k].label + '</label>');
+  $('metrics').insertAdjacentHTML('beforeend', '<label><input type="checkbox" value="' + k + '"' + (PRESETS.water.indexOf(k) >= 0 ? ' checked' : '') + '>' + METRICS[k].label + '</label>');
 });
 $('mBody').innerHTML = MROWS.map(function (m) {
   return (m.k === 'fuelRemain' ? '<tr class="pv"><th>前回の残量<span class="sub">L</span></th>' + HOUSE_LIST.map(function (h, i) { return '<td id="pv_' + i + '">—</td>'; }).join('') + '</tr>' : '') +
@@ -216,52 +243,17 @@ $('mBody').innerHTML = MROWS.map(function (m) {
 }).join('');
 function today() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 $('date').value = today();
-function evalExpr(src) {
-  var s = String(src).replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
-    .replace(/[＋]/g, '+').replace(/[－ー−]/g, '-').replace(/[×✕xX＊]/g, '*').replace(/[÷／]/g, '/').replace(/[（]/g, '(').replace(/[）]/g, ')')
-    .replace(/[．。]/g, '.').replace(/[％]/g, '%').replace(/[,，\s]/g, '');
-  var pos = 0;
-  function peek() { return s.charAt(pos); }
-  function num() {
-    var m = /^\d*\.?\d+|^\d+\.?/.exec(s.slice(pos)); if (!m) throw 0; pos += m[0].length; return parseFloat(m[0]);
-  }
-  function atom() {
-    var v, c = peek();
-    if (c === '(') { pos++; v = expr(); if (peek() !== ')') throw 0; pos++; }
-    else if (c === '-') { pos++; v = -atom(); }
-    else if (c === '+') { pos++; v = atom(); }
-    else v = num();
-    while (peek() === '%') { pos++; v = v / 100; }
-    return v;
-  }
-  function term() { var v = atom(); while (peek() === '*' || peek() === '/') { var o = s.charAt(pos++), r = atom(); if (o === '/' && r === 0) throw 0; v = o === '*' ? v * r : v / r; } return v; }
-  function expr() { var v = term(); while (peek() === '+' || peek() === '-') { var o = s.charAt(pos++), r = term(); v = o === '+' ? v + r : v - r; } return v; }
-  try { var v = expr(); if (pos !== s.length || !isFinite(v)) return null; return Math.round(v * 10000) / 10000; } catch (e) { return null; }
-}
-var EXPR_IDS = {irrigationVolume: 'volCalc', irrigationSeconds: 'secCalc'};
-// 空欄・正しい数値/式・式の誤りを区別して返す
-function exprField(id) {
-  var s = $(id).value.trim();
-  if (!s) return {empty: true, v: null, ok: true, plain: true};
-  var n = Number(s);
-  if (isFinite(n)) return {empty: false, v: n, ok: true, plain: true};
-  var v = evalExpr(s);
-  return v === null ? {empty: false, v: null, ok: false, plain: false} : {empty: false, v: v, ok: true, plain: false};
-}
-function val(id) {
-  if (EXPR_IDS[id]) return exprField(id).v;
-  var s = $(id).value.trim(); if (!s) return null; var n = Number(s); return isFinite(n) ? n : null;
-}
+function val(id) { var s = $(id).value.trim(); if (!s) return null; var n = Number(s); return isFinite(n) ? n : null; }
 function fmt(n) { return n === null || n === undefined ? '未入力' : Number(n).toLocaleString('ja-JP', {maximumFractionDigits: 2}); }
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function statusTo(id, m, err) { $(id).textContent = m || ''; $(id).style.color = err ? '#b42318' : '#286344'; }
+function statusTo(id, m, err) { $(id).textContent = m || ''; $(id).style.color = err ? '#b42318' : 'var(--accent)'; }
 function setStatus(m, err) { statusTo('status', m, err); }
 
 // 合言葉（このスマホに覚えておく）
 function getKey() { try { return localStorage.getItem('harukaen_key') || ''; } catch (e) { return memKey; } }
 var memKey = '';
 function setKey(k) { memKey = k; try { if (k) localStorage.setItem('harukaen_key', k); else localStorage.removeItem('harukaen_key'); } catch (e) {} }
-function showKey(msg) { $('app').style.display = 'none'; $('keyCard').style.display = ''; statusTo('keyStatus', msg || '', !!msg); }
+function showKey(msg) { $('app').style.display = 'none'; $('mainTabs').style.display = 'none'; $('keyCard').style.display = ''; statusTo('keyStatus', msg || '', !!msg); }
 // 保存先とのやりとり
 function api(action, data) {
   var body = {key: getKey(), action: action, data: data};
@@ -274,6 +266,17 @@ function api(action, data) {
     if (!res || !res.ok) throw new Error(res && res.error ? res.error : '保存先から返事がありませんでした。');
     return res;
   });
+}
+
+// ---- タブ（朝・夕方・記録） ----
+function showTab(t) {
+  tab = t;
+  document.body.className = 'tab-' + t;
+  document.querySelectorAll('section[data-tab]').forEach(function (s) { s.hidden = s.dataset.tab !== t; });
+  document.querySelectorAll('#mainTabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-selected', b.dataset.tab === t); });
+  var c = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+  document.querySelector('meta[name=theme-color]').setAttribute('content', c || '#286344');
+  if (t === 'records') { chartToEnd = true; drawChart(); }
 }
 
 // 同じハウスの、指定日より前の最新値
@@ -302,12 +305,12 @@ function derive() {
   });
 }
 
-// ---- 記録日の帯 ----
+// ---- 記録日の帯と保存ボタンの文字 ----
 function renderBar() {
-  var d = $('date').value;
+  var d = $('date').value, dl = d ? jpDate(d) : '記録日 未入力';
   $('barDate').textContent = d ? jpDate(d) : '未入力';
   $('barWarn').style.display = d && d !== today() ? '' : 'none';
-  $('eConfirm').textContent = (d ? jpDate(d) : '記録日 未入力') + '　' + house + ' の記録を保存します';
+  if (!busy) { $('mSaveBtn').textContent = dl + '　朝の記録を保存'; $('saveBtn').textContent = dl + '　' + house + 'の記録を保存'; }
 }
 
 // ---- 朝の入力 ----
@@ -375,67 +378,46 @@ function saveMorning() {
 }
 
 // ---- 夕方の入力（ハウス別） ----
-function updateCalc() {
-  var d = $('date').value, n = mergeN(), tm = house === '3番';
-  var iv = val('irrigationVolume'), raw = $('drainagePerBed').value.trim().toUpperCase(), f = raw === 'F';
-  var dp = f || raw === '' ? null : Number(raw), ok = dp === null || isFinite(dp);
-  var dv = ok && dp !== null ? dp * beds[house] : null;
-  $('drainageTotal').textContent = '排液総量：' + (f ? 'F（タンク上限超過）' : fmt(dv) + (dv === null ? '' : ' L／ハウス' + (n > 1 ? '（' + n + '日分）' : '')));
-  var ie = val('irrigationEC') !== null ? val('irrigationEC') : prevAt('irrigationEC', d), de = val('drainageEC');
-  var sumIv = iv, salt = (iv !== null && ie !== null) ? iv * (ie - RAW) : null, miss = false, k;
-  for (k = 1; k < n; k++) {
-    var dd = addDays(d, -k), x = byKey[house + '|' + dd];
-    var xv = x ? x.irrigationVolume : null;
-    var xe = x && x.irrigationEC != null ? x.irrigationEC : prevAt('irrigationEC', dd);
-    if (xv === null || xv === undefined) { miss = true; sumIv = null; salt = null; break; }
-    if (sumIv !== null) sumIv += xv;
-    salt = (salt !== null && xe !== null) ? salt + xv * (xe - RAW) : null;
-  }
-  $('drainageRatio').textContent = '排液率：' + (f ? '計算対象外（F）' :
-    sumIv > 0 && dv !== null ? fmt(dv / sumIv * 100) + ' %' + (n > 1 ? '（' + n + '日分の給液量で計算）' : '') :
-    miss ? '未入力（前の日の給液量が必要です）' : '未入力');
-  var b = !f && salt !== null && dv !== null && de !== null ? salt - dv * (de - RAW) : null;
-  $('ecBalance').textContent = 'EC差分指標：' + (f ? '計算対象外（F）' : fmt(b));
-  $('drainagePerBed').setCustomValidity(ok ? '' : '排液量は数値または F を入力してください。');
-  Object.keys(EXPR_IDS).forEach(function (id) {
-    var e = exprField(id), el = $(EXPR_IDS[id]);
-    el.className = 'calc' + (e.ok ? '' : ' err');
-    el.textContent = !e.ok ? '計算式を確認してください' : (e.plain || e.empty ? '' : '＝ ' + fmt(e.v) + (id === 'irrigationSeconds' ? ' 秒' : ' L'));
-  });
+var fBackup = '';
+function updateEvening() {
+  var tm = house === '3番', raw = $('drainagePerBed').value.trim().toUpperCase(), f = raw === 'F';
+  var ok = raw === '' || f || isFinite(Number(raw));
+  $('drainagePerBed').setCustomValidity(ok ? '' : '排液量は数値、または F ボタンで入れてください。');
+  $('fBtn').classList.toggle('on', f); $('fBtn').setAttribute('aria-pressed', f);
   $('volBox').style.display = tm ? 'none' : ''; $('secBox').style.display = tm ? '' : 'none';
-  $('drainageRatio').style.display = tm ? 'none' : ''; $('ecBalance').style.display = tm ? 'none' : '';
-  $('ratioNote').style.display = tm ? 'none' : ''; $('fNote').style.display = tm ? 'none' : '';
 }
 function renderForm() {
   var d = $('date').value, r = byKey[house + '|' + d];
   function set(id, v) { $(id).value = v === null || v === undefined ? '' : v; }
+  document.querySelectorAll('b.hn').forEach(function (b) { b.textContent = house; });
   set('dilution', r && r.dilution); set('irrigationVolume', r && r.irrigationVolume); set('irrigationSeconds', r && r.irrigationSeconds);
   set('fertName', r && r.fertName); set('fertAmount', r && r.fertAmount);
   set('drainagePerBed', r ? (r.drainageOverflow ? 'F' : r.drainagePerBed) : '');
   set('irrigationEC', r && r.irrigationEC); set('drainageEC', r && r.drainageEC);
+  fBackup = '';
   $('mergeDays').value = r && r.mergeDays > 1 ? String(r.mergeDays) : '1';
   $('mergeNote').textContent = r && r.mergedInto ? 'この日の排液量は ' + md(r.mergedInto) + ' にまとめて入力されています。ここでは入力しなくて大丈夫です。' : '';
   var pd = prev('dilution'), pe = prev('irrigationEC');
   $('dilution').placeholder = pd !== null ? '前回：' + pd + '倍' : '例：500';
   $('irrigationEC').placeholder = pe !== null ? '前回：' + pe : '空欄なら前回値';
-  $('saveBtn').textContent = house + 'の記録を保存';
+  $('bedNote').textContent = 'ベッド数：' + beds[house];
   renderBar();
-  updateCalc();
+  updateEvening();
 }
 function setBusy(on, btn) {
   busy = on;
   ['mSaveBtn', 'saveBtn'].forEach(function (id) { $(id).disabled = on; });
   if (on && btn) $(btn).textContent = '保存しています…';
-  if (!on) { $('mSaveBtn').textContent = '朝の記録を保存'; $('saveBtn').textContent = house + 'の記録を保存'; }
+  if (!on) renderBar();
 }
 function save() {
   if (busy) return;
-  if (!$('date').value) return setStatus('記録日を入力してください。', true);
-  var fid = house === '3番' ? 'irrigationSeconds' : 'irrigationVolume';
-  if (!exprField(fid).ok) return setStatus('給液の計算式を確認してください。', true);
-  if (!$('drainagePerBed').checkValidity()) return setStatus('排液量は数値または F を入力してください。', true);
-  if (mergeN() > 1 && $('drainagePerBed').value.trim() === '') return setStatus('まとめて測った日は、排液量を入れてください。', true);
   var d = $('date').value, h = house;
+  if (!d) return setStatus('記録日を入力してください。', true);
+  if (!$('drainagePerBed').checkValidity()) return setStatus('排液量は数値、または F ボタンで入れてください。', true);
+  var nums = ['dilution', h === '3番' ? 'irrigationSeconds' : 'irrigationVolume', 'irrigationEC', 'drainageEC', 'fertAmount'];
+  for (var i = 0; i < nums.length; i++) if ($(nums[i]).validity.badInput) return setStatus($(nums[i]).labels[0].textContent + 'を確認してください。', true);
+  if (mergeN() > 1 && $('drainagePerBed').value.trim() === '') return setStatus('まとめて測った日は、排液量を入れてください。', true);
   var p = {date: d, house: h, dilution: val('dilution'),
     irrigationVolume: h === '3番' ? null : val('irrigationVolume'), irrigationSeconds: h === '3番' ? val('irrigationSeconds') : null,
     fertName: $('fertName').value.trim(), fertAmount: val('fertAmount'), drainagePerBed: $('drainagePerBed').value.trim().toUpperCase(),
@@ -451,17 +433,17 @@ function apply(d, keepMorning) {
   records = d.records || []; weathers = d.weather || []; fuels = d.fuel || []; beds = d.houses || beds; derive();
   // 夕方の保存のあとは、朝の欄に入力途中のものがあれば残す
   if (keepMorning) updateMorning(); else renderMorning();
-  renderForm(); renderHistory(); drawChart();
+  renderForm(); renderHistory(); if (tab === 'records') drawChart();
 }
 function load() {
   setBusy(true);
-  $('keyCard').style.display = 'none'; $('app').style.display = '';
+  $('keyCard').style.display = 'none'; $('app').style.display = ''; $('mainTabs').style.display = '';
   $('historyNote').textContent = '記録を読み込み中です。';
   return api('load').then(function (r) { setBusy(false); apply(r.data); }, function (e) {
     setBusy(false);
     if (!getKey()) return;
     var m = '記録を読み込めませんでした：' + e.message;
-    $('historyNote').textContent = m; $('chartNote').textContent = m; statusTo('mStatus', m, true);
+    $('historyNote').textContent = m; $('chartNote').textContent = m; statusTo('mStatus', m, true); setStatus(m, true);
   });
 }
 var hHouse = '0番', hLimit = 30;
@@ -500,10 +482,10 @@ function axisKeys() {
 }
 function aggregate(k, dates) {
   if (k === 'fuelUsage') {
-    var fu = fuels.filter(function (f) { return f.house === house && f.usage !== null && dates.indexOf(f.date) >= 0; });
+    var fu = fuels.filter(function (f) { return f.house === gHouse && f.usage !== null && dates.indexOf(f.date) >= 0; });
     return {v: fu.length ? fu.reduce(function (x, f) { return x + f.usage; }, 0) : null, f: false};
   }
-  var a = records.filter(function (r) { return r.house === house && dates.indexOf(r.date) >= 0; });
+  var a = records.filter(function (r) { return r.house === gHouse && dates.indexOf(r.date) >= 0; });
   if (k === 'drainageRatio') {
     if (a.some(function (r) { return r.fl; })) return {v: null, f: true};
     var iv = 0, w = 0;
@@ -517,14 +499,13 @@ function aggregate(k, dates) {
   var s = v.reduce(function (x, y) { return x + y; }, 0);
   return {v: METRICS[k].sum ? s : s / v.length, f: false};
 }
-var FIXED_STEP = {dilution: 100, irrigationEC: 0.1, drainageEC: 0.1};
 var chartToEnd = true;
 function niceStep(range, maxN) {
   var raw = range / maxN, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
   return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
 }
-function axisFor(k, min, max) {
-  var step = FIXED_STEP[k] || (max > min ? niceStep(max - min, 5) : 1);
+function axisFor(g, min, max) {
+  var step = GROUP_STEP[g] || (max > min ? niceStep(max - min, 5) : 1);
   while ((max - min) / step > 8) step *= 2;
   var lo = Math.floor(min / step + 1e-9) * step, hi = Math.ceil(max / step - 1e-9) * step;
   if (hi - lo < step * 2) { hi = lo + step * 2; if (hi < max) hi += step; }
@@ -535,12 +516,23 @@ function setupCanvas(c, w, h, dpr) {
   c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + 'px'; c.style.height = h + 'px';
   var x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); return x;
 }
+function syncPresets(ks) {
+  document.querySelectorAll('#presets button').forEach(function (b) {
+    var p = PRESETS[b.dataset.p];
+    b.classList.toggle('on', ks.length === p.length && p.every(function (k) { return ks.indexOf(k) >= 0; }));
+  });
+}
 function drawChart() {
+  if (tab !== 'records') return;
   var dpr = Math.min(window.devicePixelRatio || 1, 2), h = 310, t = 36, ph = h - t - 64, PAD = 16;
   var ks = Array.prototype.map.call(document.querySelectorAll('#metrics input:checked'), function (z) { return z.value; });
+  syncPresets(ks);
+  // 選んだ項目を縦軸のまとまり（同じ単位）ごとに分ける
+  var groups = [];
+  ks.forEach(function (k) { var g = METRICS[k].group; if (groups.indexOf(g) < 0) groups.push(g); });
   var sc = $('chartScroll'), keep = sc.scrollLeft;
-  $('axR').style.display = ks.length > 1 ? '' : 'none';
-  var axW = 48, avail = Math.max(200, ($('chart').parentNode.parentNode.clientWidth || 360) - axW * (ks.length > 1 ? 2 : 1));
+  $('axR').style.display = groups.length > 1 ? '' : 'none';
+  var axW = 48, avail = Math.max(200, ($('chart').parentNode.parentNode.clientWidth || 360) - axW * (groups.length > 1 ? 2 : 1));
   var xs = axisKeys(), stepPx = period === 'daily' ? 26 : 44;
   var w = Math.max(avail, PAD * 2 + (xs.length - 1) * stepPx), step = (w - PAD * 2) / (xs.length - 1);
   var x = setupCanvas($('chart'), w, h, dpr), xl = setupCanvas($('axL'), axW, h, dpr), xr = setupCanvas($('axR'), axW, h, dpr);
@@ -556,66 +548,94 @@ function drawChart() {
       x.font = '11px system-ui'; x.fillStyle = '#536258'; x.save(); x.translate(px + 4, t + ph + 26); x.rotate(-Math.PI / 2); x.textAlign = 'right'; x.fillText(md(d), 0, 0); x.restore();
     } else { x.font = '11px system-ui'; x.textAlign = 'center'; x.fillText(md(d), px, t + ph + 18); }
   });
+  var series = {};
+  ks.forEach(function (k) {
+    series[k] = xs.map(function (d) { var ds = [d]; if (period === 'weekly') { ds = []; for (var i = 0; i < 7; i++) ds.push(addDays(d, i)); } return aggregate(k, ds); });
+  });
   var notes = [];
-  ks.forEach(function (k, ki) {
-    var m = METRICS[k];
-    var a = xs.map(function (d) { var ds = [d]; if (period === 'weekly') { ds = []; for (var i = 0; i < 7; i++) ds.push(addDays(d, i)); } return aggregate(k, ds); });
-    var v = a.filter(function (q) { return q.v !== null; }).map(function (q) { return q.v; });
-    if (!v.length && !a.some(function (q) { return q.f; })) { notes.push(m.label + '（データなし）'); return; }
-    var min = v.length ? Math.min.apply(null, v) : 0, max = v.length ? Math.max.apply(null, v) : 0;
-    var ax = axisFor(k, min, max), lo = ax.lo, hi = ax.hi;
-    function yv(val) { var r = (val - lo) / (hi - lo); return m.rev ? t + r * ph : t + ph - r * ph; }
-    function py(q) { return q.f ? t + 4 : yv(q.v); }
-    // 目盛り（横線は先に選んだ項目に合わせる）
-    var cx = ki === 0 ? xl : ki === 1 ? xr : null, n = Math.round((hi - lo) / ax.step), g;
-    for (g = 0; g <= n; g++) {
-      var tv = lo + g * ax.step, ty = yv(tv);
-      if (ki === 0) { x.strokeStyle = '#dce5de'; x.lineWidth = 1; x.beginPath(); x.moveTo(0, ty); x.lineTo(w, ty); x.stroke(); }
-      if (cx && v.length) {
-        cx.fillStyle = m.color; cx.font = '11px system-ui'; cx.textAlign = ki === 0 ? 'right' : 'left';
-        cx.fillText(tv.toFixed(ax.dec).replace(/\B(?=(\d{3})+(?!\d))/g, ','), ki === 0 ? axW - 5 : 5, ty + 4);
+  groups.forEach(function (g, gi) {
+    var gks = ks.filter(function (k) { return METRICS[k].group === g; }), all = [];
+    gks.forEach(function (k) { series[k].forEach(function (q) { if (q.v !== null) all.push(q.v); }); });
+    var hasF = gks.some(function (k) { return series[k].some(function (q) { return q.f; }); });
+    if (!all.length && !hasF) { gks.forEach(function (k) { notes.push(METRICS[k].label + '（データなし）'); }); return; }
+    var min = all.length ? Math.min.apply(null, all) : 0, max = all.length ? Math.max.apply(null, all) : 0;
+    var ax = axisFor(g, min, max), lo = ax.lo, hi = ax.hi, m0 = METRICS[gks[0]];
+    function yv(val) { var r = (val - lo) / (hi - lo); return m0.rev ? t + r * ph : t + ph - r * ph; }
+    // 目盛り（横線は1つ目のまとまりに合わせる。数字は左右の2つまで）
+    var cx = gi === 0 ? xl : gi === 1 ? xr : null, n = Math.round((hi - lo) / ax.step), gg;
+    var axColor = gks.length > 1 ? '#334155' : m0.color;
+    for (gg = 0; gg <= n; gg++) {
+      var tv = lo + gg * ax.step, ty = yv(tv);
+      if (gi === 0) { x.strokeStyle = '#dce5de'; x.lineWidth = 1; x.beginPath(); x.moveTo(0, ty); x.lineTo(w, ty); x.stroke(); }
+      if (cx && all.length) {
+        cx.fillStyle = axColor; cx.font = '11px system-ui'; cx.textAlign = gi === 0 ? 'right' : 'left';
+        cx.fillText(tv.toFixed(ax.dec).replace(/\B(?=(\d{3})+(?!\d))/g, ','), gi === 0 ? axW - 5 : 5, ty + 4);
       }
     }
-    if (cx && v.length) { cx.font = 'bold 11px system-ui'; cx.textAlign = ki === 0 ? 'right' : 'left'; cx.fillText(m.unit || '', ki === 0 ? axW - 5 : 5, t - 14); }
-    x.strokeStyle = m.color; x.lineWidth = 2; x.beginPath();
-    var on = false;
-    a.forEach(function (q, i) { if (q.v === null && !q.f) { on = false; return; } if (on) x.lineTo(PAD + i * step, py(q)); else x.moveTo(PAD + i * step, py(q)); on = true; });
-    x.stroke();
-    a.forEach(function (q, i) {
-      if (q.v === null && !q.f) return;
-      x.fillStyle = m.color; x.beginPath(); x.arc(PAD + i * step, py(q), q.f ? 5 : 3, 0, 6.2832); x.fill();
-      if (q.f) { x.font = 'bold 13px system-ui'; x.textAlign = 'center'; x.fillText('F', PAD + i * step, py(q) + 18); }
+    if (cx && all.length) { cx.fillStyle = axColor; cx.font = 'bold 11px system-ui'; cx.textAlign = gi === 0 ? 'right' : 'left'; cx.fillText(m0.unit || '', gi === 0 ? axW - 5 : 5, t - 14); }
+    gks.forEach(function (k) {
+      var m = METRICS[k], a = series[k];
+      function py(q) { return q.f ? t + 4 : yv(q.v); }
+      x.strokeStyle = m.color; x.lineWidth = 2; x.beginPath();
+      var on = false;
+      a.forEach(function (q, i) { if (q.v === null && !q.f) { on = false; return; } if (on) x.lineTo(PAD + i * step, py(q)); else x.moveTo(PAD + i * step, py(q)); on = true; });
+      x.stroke();
+      a.forEach(function (q, i) {
+        if (q.v === null && !q.f) return;
+        x.fillStyle = m.color; x.beginPath(); x.arc(PAD + i * step, py(q), q.f ? 5 : 3, 0, 6.2832); x.fill();
+        if (q.f) { x.font = 'bold 13px system-ui'; x.textAlign = 'center'; x.fillText('F', PAD + i * step, py(q) + 18); }
+      });
+      var v = a.filter(function (q) { return q.v !== null; }).map(function (q) { return q.v; });
+      notes.push(m.label + (v.length ? '（' + fmt(Math.min.apply(null, v)) + '～' + fmt(Math.max.apply(null, v)) + m.unit + '）' : '（データなし）'));
     });
-    notes.push(m.label + '（' + fmt(min) + '～' + fmt(max) + m.unit + '）');
   });
-  $('chartNote').textContent = (period === 'daily' ? '日別・過去1年' : '週別・過去1年') + '・' + house + '：' + notes.join(' ／ ') + '。' + (ks.indexOf('dilution') >= 0 ? '倍率は上下逆（下ほど水に近い）。' : '') + (ks.length > 2 ? '縦軸の数字は先に選んだ2項目分です。' : '') + 'Fは排液率から除外し、グラフ上端にFを表示します。';
+  $('chartNote').textContent = (period === 'daily' ? '日別・過去1年' : '週別・過去1年') + '・' + gHouse + '：' + notes.join(' ／ ') + '。' +
+    (groups.length > 2 ? '縦軸の数字は2種類までです（3種類目からは線だけ表示しています）。' : '') +
+    (ks.indexOf('dilution') >= 0 ? '倍率は上下逆（下ほど水に近い）。' : '') + (ks.indexOf('drainageRatio') >= 0 ? 'Fは排液率から除外し、グラフ上端にFを表示します。' : '');
   sc.scrollLeft = chartToEnd ? sc.scrollWidth : keep; chartToEnd = false;
 }
+document.querySelectorAll('#mainTabs button').forEach(function (b) { b.addEventListener('click', function () { showTab(b.dataset.tab); window.scrollTo(0, 0); }); });
 document.querySelectorAll('[data-house]').forEach(function (b) {
   b.addEventListener('click', function () {
     house = b.dataset.house;
     document.querySelectorAll('[data-house]').forEach(function (y) { y.classList.toggle('on', y === b); });
-    $('bedNote').textContent = 'ベッド数：' + beds[house]; renderForm(); chartToEnd = true; drawChart();
-    hHouse = house; hLimit = 30; syncHTabs(); renderHistory();
+    renderForm(); setStatus('');
   });
 });
-['irrigationVolume','irrigationSeconds','drainagePerBed','irrigationEC','drainageEC','dilution'].forEach(function (i) { $(i).addEventListener('input', updateCalc); });
+document.querySelectorAll('[data-gh]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    gHouse = b.dataset.gh;
+    document.querySelectorAll('[data-gh]').forEach(function (y) { y.classList.toggle('on', y === b); });
+    // 3番は給液を秒で管理しているので、給液量の代わりに給液時間を出す
+    var iv = document.querySelector('#metrics input[value=irrigationVolume]'), is = document.querySelector('#metrics input[value=irrigationSeconds]');
+    if (gHouse === '3番' && iv.checked) { iv.checked = false; is.checked = true; }
+    else if (gHouse !== '3番' && is.checked) { is.checked = false; iv.checked = true; }
+    chartToEnd = true; drawChart();
+    hHouse = gHouse; hLimit = 30; syncHTabs(); renderHistory();
+  });
+});
+document.querySelectorAll('#presets button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var p = PRESETS[b.dataset.p].slice();
+    if (b.dataset.p === 'water' && gHouse === '3番') p[0] = 'irrigationSeconds';
+    document.querySelectorAll('#metrics input').forEach(function (i) { i.checked = p.indexOf(i.value) >= 0; });
+    drawChart();
+  });
+});
+$('drainagePerBed').addEventListener('input', updateEvening);
+$('fBtn').addEventListener('click', function () {
+  var el = $('drainagePerBed'), cur = el.value.trim().toUpperCase();
+  if (cur === 'F') el.value = fBackup; else { fBackup = el.value; el.value = 'F'; }
+  updateEvening();
+});
 HOUSE_LIST.forEach(function (h, i) { ['fuelRemain', 'fuelAdd'].forEach(function (k) { $('m_' + k + '_' + i).addEventListener('input', updateMorning); }); });
-$('mergeDays').addEventListener('change', updateCalc);
 $('date').addEventListener('change', function () { renderMorning(); renderForm(); chartToEnd = true; drawChart(); });
-$('dateBar').addEventListener('click', function () { window.scrollTo({top: 0, behavior: 'smooth'}); setTimeout(function () { $('date').focus(); }, 300); });
+$('dateBar').addEventListener('click', function () { showTab('morning'); window.scrollTo({top: 0, behavior: 'smooth'}); setTimeout(function () { $('date').focus(); }, 300); });
 $('mSaveBtn').addEventListener('click', saveMorning);
 $('saveBtn').addEventListener('click', save);
 function syncHTabs() { document.querySelectorAll('[data-hh]').forEach(function (y) { y.classList.toggle('on', y.dataset.hh === hHouse); }); }
 document.querySelectorAll('[data-hh]').forEach(function (b) { b.addEventListener('click', function () { hHouse = b.dataset.hh; hLimit = 30; syncHTabs(); renderHistory(); }); });
 $('moreBtn').addEventListener('click', function () { hLimit = 366; renderHistory(); });
-document.querySelectorAll('#exprKeys button').forEach(function (b) {
-  b.addEventListener('mousedown', function (e) { e.preventDefault(); });
-  b.addEventListener('click', function () {
-    var el = $(house === '3番' ? 'irrigationSeconds' : 'irrigationVolume'), st = el.selectionStart == null ? el.value.length : el.selectionStart, en = el.selectionEnd == null ? st : el.selectionEnd;
-    el.value = el.value.slice(0, st) + b.dataset.k + el.value.slice(en); el.focus(); el.setSelectionRange(st + 1, st + 1); updateCalc();
-  });
-});
 document.querySelectorAll('#metrics input').forEach(function (i) { i.addEventListener('change', drawChart); });
 $('dailyBtn').addEventListener('click', function () { period = 'daily'; chartToEnd = true; $('dailyBtn').classList.add('on'); $('weeklyBtn').classList.remove('on'); drawChart(); });
 $('weeklyBtn').addEventListener('click', function () { period = 'weekly'; chartToEnd = true; $('weeklyBtn').classList.add('on'); $('dailyBtn').classList.remove('on'); drawChart(); });
@@ -625,6 +645,8 @@ $('keyBtn').addEventListener('click', function () {
   if (!k) return statusTo('keyStatus', '合言葉を入れてください。', true);
   setKey(k); load();
 });
+// 開いた時刻で最初のタブを決める（12時より前は朝、それ以降は夕方）
+showTab(new Date().getHours() < 12 ? 'morning' : 'evening');
 renderBar();
 if (getKey()) load(); else showKey();
 </script>
