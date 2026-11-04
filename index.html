@@ -45,7 +45,11 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-space:nowrap}
 .wrap{overflow-x:auto}
 .wrap th:first-child,.wrap td:first-child{position:sticky;left:0;background:#fff;z-index:1;box-shadow:1px 0 0 #e2e8e3}
-.tabs.small button{padding:9px 4px;font-size:16px}
+/* グラフに出す項目（ハウスのボタンと見分けがつくよう、丸い形にする） */
+.grouplabel{font-weight:650;margin:4px 0 6px}
+#presets{display:flex;gap:8px;margin:0 0 10px}
+#presets button{flex:1;padding:9px 2px;font-size:15px;font-weight:700;background:#fff;color:#264332;border:1px solid #aab8ad;border-radius:999px}
+#presets button.on{background:var(--soft);color:var(--accent);border:2px solid var(--accent)}
 .more{width:100%;padding:12px;font-size:17px;font-weight:700;border:1px solid var(--accent);border-radius:10px;background:#fff;color:var(--accent);margin-top:10px}
 /* 上に固定：記録日の帯とタブ */
 #top{position:sticky;top:0;z-index:20;margin:0 -14px;box-shadow:0 2px 6px #00000026}
@@ -165,13 +169,19 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
 
 <section data-tab="records" hidden>
 <div class="card">
-  <h2>記録・グラフ</h2>
-  <div class="tabs small" id="gHouseTabs">
+  <h2>ハウス</h2>
+  <div class="note">選んだハウスのグラフと最近の記録を表示します。</div>
+  <div class="tabs" id="gHouseTabs">
     <button type="button" data-gh="0番" class="on">0番</button>
     <button type="button" data-gh="2番">2番</button>
     <button type="button" data-gh="3番">3番</button>
   </div>
-  <div class="tabs small" id="presets">
+</div>
+
+<div class="card">
+  <h2 id="chartTitle">0番のグラフ</h2>
+  <div class="grouplabel">グラフに出す項目</div>
+  <div id="presets">
     <button type="button" data-p="temp">気温</button>
     <button type="button" data-p="water">給液と排液</button>
     <button type="button" data-p="ec">EC</button>
@@ -189,12 +199,7 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
 </div>
 
 <div class="card">
-  <h2>最近の記録</h2>
-  <div class="tabs small" id="hTabs">
-    <button type="button" data-hh="0番" class="on">0番</button>
-    <button type="button" data-hh="2番">2番</button>
-    <button type="button" data-hh="3番">3番</button>
-  </div>
+  <h2 id="histTitle">0番の最近の記録</h2>
   <div class="wrap"><table><thead id="histHead"></thead><tbody id="history"></tbody></table></div>
   <button type="button" class="more" id="moreBtn" style="display:none">もっと見る（1年分まで）</button>
   <div id="historyNote" class="note">記録を読み込み中です。</div>
@@ -446,11 +451,12 @@ function load() {
     $('historyNote').textContent = m; $('chartNote').textContent = m; statusTo('mStatus', m, true); setStatus(m, true);
   });
 }
-var hHouse = '0番', hLimit = 30;
+var hLimit = 30;
 function renderHistory() {
-  var tm = hHouse === '3番';
+  var tm = gHouse === '3番';
+  $('chartTitle').textContent = gHouse + 'のグラフ'; $('histTitle').textContent = gHouse + 'の最近の記録';
   $('histHead').innerHTML = '<tr><th>日付</th><th>倍率</th><th>' + (tm ? '給液時間' : '給液量') + '</th><th>排液量</th>' + (tm ? '' : '<th>排液率</th>') + '<th>給液EC</th><th>排液EC</th><th>最高/最低</th><th>重油</th><th>肥料</th></tr>';
-  var all = records.filter(function (r) { return r.house === hHouse; }).sort(function (a, b) { return b.date.localeCompare(a.date); }).slice(0, 366);
+  var all = records.filter(function (r) { return r.house === gHouse; }).sort(function (a, b) { return b.date.localeCompare(a.date); }).slice(0, 366);
   var shown = all.slice(0, hLimit);
   $('history').innerHTML = shown.map(function (r) {
       var dr, q;
@@ -469,8 +475,8 @@ function renderHistory() {
         '</td><td>' + esc(fmt(r.irrigationEC)) + '</td><td>' + esc(fmt(r.drainageEC)) + '</td><td>' + tp + '</td><td>' + fs + '</td><td>' + fe + '</td></tr>';
     }).join('');
   $('moreBtn').style.display = all.length > hLimit ? '' : 'none';
-  $('historyNote').textContent = !records.length ? '保存された記録はありません。' : !all.length ? hHouse + 'の記録はまだありません。' :
-    all.length > hLimit ? hHouse + '：直近' + hLimit + '件を表示中（全' + all.length + '件）。' : hHouse + '：' + all.length + '件すべて表示中。';
+  $('historyNote').textContent = !records.length ? '保存された記録はありません。' : !all.length ? gHouse + 'の記録はまだありません。' :
+    all.length > hLimit ? gHouse + '：直近' + hLimit + '件を表示中（全' + all.length + '件）。' : gHouse + '：' + all.length + '件すべて表示中。';
 }
 function addDays(s, n) { var d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function axisKeys() {
@@ -516,9 +522,15 @@ function setupCanvas(c, w, h, dpr) {
   c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + 'px'; c.style.height = h + 'px';
   var x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); return x;
 }
+// 3番は給液を秒で管理しているので、給液量の代わりに給液時間を出す
+function presetKeys(name) {
+  var p = PRESETS[name].slice();
+  if (name === 'water' && gHouse === '3番') p[0] = 'irrigationSeconds';
+  return p;
+}
 function syncPresets(ks) {
   document.querySelectorAll('#presets button').forEach(function (b) {
-    var p = PRESETS[b.dataset.p];
+    var p = presetKeys(b.dataset.p);
     b.classList.toggle('on', ks.length === p.length && p.every(function (k) { return ks.indexOf(k) >= 0; }));
   });
 }
@@ -611,13 +623,12 @@ document.querySelectorAll('[data-gh]').forEach(function (b) {
     if (gHouse === '3番' && iv.checked) { iv.checked = false; is.checked = true; }
     else if (gHouse !== '3番' && is.checked) { is.checked = false; iv.checked = true; }
     chartToEnd = true; drawChart();
-    hHouse = gHouse; hLimit = 30; syncHTabs(); renderHistory();
+    hLimit = 30; renderHistory();
   });
 });
 document.querySelectorAll('#presets button').forEach(function (b) {
   b.addEventListener('click', function () {
-    var p = PRESETS[b.dataset.p].slice();
-    if (b.dataset.p === 'water' && gHouse === '3番') p[0] = 'irrigationSeconds';
+    var p = presetKeys(b.dataset.p);
     document.querySelectorAll('#metrics input').forEach(function (i) { i.checked = p.indexOf(i.value) >= 0; });
     drawChart();
   });
@@ -633,8 +644,6 @@ $('date').addEventListener('change', function () { renderMorning(); renderForm()
 $('dateBar').addEventListener('click', function () { showTab('morning'); window.scrollTo({top: 0, behavior: 'smooth'}); setTimeout(function () { $('date').focus(); }, 300); });
 $('mSaveBtn').addEventListener('click', saveMorning);
 $('saveBtn').addEventListener('click', save);
-function syncHTabs() { document.querySelectorAll('[data-hh]').forEach(function (y) { y.classList.toggle('on', y.dataset.hh === hHouse); }); }
-document.querySelectorAll('[data-hh]').forEach(function (b) { b.addEventListener('click', function () { hHouse = b.dataset.hh; hLimit = 30; syncHTabs(); renderHistory(); }); });
 $('moreBtn').addEventListener('click', function () { hLimit = 366; renderHistory(); });
 document.querySelectorAll('#metrics input').forEach(function (i) { i.addEventListener('change', drawChart); });
 $('dailyBtn').addEventListener('click', function () { period = 'daily'; chartToEnd = true; $('dailyBtn').classList.add('on'); $('weeklyBtn').classList.remove('on'); drawChart(); });
