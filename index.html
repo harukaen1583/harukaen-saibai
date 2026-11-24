@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>春香園 栽培管理</title>
-<meta name="theme-color" content="#286344">
+<!-- スマホの上の帯（時計・電池）はアプリの背景と同じ明るい色にして、アプリの帯との境目を分かるようにする -->
+<meta name="theme-color" content="#f4f7f3">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -21,7 +22,15 @@ body{margin:0 auto;padding:0 14px 14px;max-width:920px;background:#f4f7f3}
 h1{font-size:22px;margin:10px 0 4px}h2{font-size:20px;margin:0 0 8px;color:var(--accent)}
 .card{background:#fff;padding:16px;border-radius:15px;margin:12px 0;box-shadow:0 2px 8px #0000000c;border-top:5px solid var(--accent)}
 label{display:block;font-weight:650;margin:14px 0 6px}
-label b.hn{color:var(--accent);font-size:1.12em}
+label b.hn{font-size:1.12em}
+/* ハウスの色（時間帯のタブの色と重ならない色）：0番＝紫、2番＝青緑、3番＝茶 */
+:root{--h0:#6d28d9;--h2:#0f766e;--h3:#92400e}
+.hc0{color:var(--h0)}.hc2{color:var(--h2)}.hc3{color:var(--h3)}
+[data-house="0番"],[data-gh="0番"]{color:var(--h0)!important}[data-house="2番"],[data-gh="2番"]{color:var(--h2)!important}[data-house="3番"],[data-gh="3番"]{color:var(--h3)!important}
+.tabs button.on[data-house],.tabs button.on[data-gh]{color:#fff!important}
+[data-house="0番"].on,[data-gh="0番"].on{background:var(--h0)!important;border-color:var(--h0)!important}
+[data-house="2番"].on,[data-gh="2番"].on{background:var(--h2)!important;border-color:var(--h2)!important}
+[data-house="3番"].on,[data-gh="3番"].on{background:var(--h3)!important;border-color:var(--h3)!important}
 input,select{font:inherit;font-size:19px;padding:12px;width:100%;min-height:48px;border:1px solid #aab8ad;border-radius:9px;background:#fff;color:#24332a}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tabs{display:flex;gap:8px;margin:12px 0}
@@ -63,7 +72,7 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
 /* 朝の入力：3ハウス分の表 */
 .mt{table-layout:fixed;font-size:15px;margin-top:12px}
 .mt th,.mt td{padding:5px 3px;white-space:normal;border-bottom:0;vertical-align:middle}
-.mt thead th{text-align:center;font-size:17px;color:var(--accent)}
+.mt thead th{text-align:center;font-size:17px}
 .mt th:first-child{width:88px;font-size:14px;line-height:1.3}
 .mt input{font-size:18px;padding:8px 6px;min-height:46px;text-align:center}
 .mt .sub{display:block;font-weight:400;color:#5b6a60;font-size:12px}
@@ -107,7 +116,7 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
   <label for="weather">天候</label>
   <select id="weather"><option value="">選択してください</option><option>晴れ</option><option>曇り</option><option>雨（雪）</option></select>
   <table class="mt">
-    <thead><tr><th></th><th>0番</th><th>2番</th><th>3番</th></tr></thead>
+    <thead><tr><th></th><th class="hc0">0番</th><th class="hc2">2番</th><th class="hc3">3番</th></tr></thead>
     <tbody id="mBody"></tbody>
   </table>
   <div class="fuelline" id="fuelNow"></div>
@@ -188,7 +197,7 @@ th,td{padding:8px 5px;border-bottom:1px solid #e2e8e3;text-align:left;white-spac
   </div>
   <div class="note">下の項目から選んでも表示できます。同じ単位の項目は同じ縦軸です。グラフは左右にスクロールすると1年分まで見られます。</div>
   <div class="checks" id="metrics"></div>
-  <div class="tabs"><button type="button" id="dailyBtn" class="on">日別（1年）</button><button type="button" id="weeklyBtn">週別（1年）</button></div>
+  <div class="tabs"><button type="button" id="dailyBtn" class="on">日別（1年）</button><button type="button" id="weeklyBtn">3日ごと（1年）</button></div>
   <div class="legend" id="legend"></div>
   <div class="chartbox">
     <canvas id="axL" role="presentation"></canvas>
@@ -233,6 +242,8 @@ var MROWS = [
   {k:'highTemp', label:'前日の最高気温', unit:'℃'}, {k:'lowTemp', label:'当日の最低気温', unit:'℃'},
   {k:'fuelRemain', label:'重油残量', unit:'L'}, {k:'fuelAdd', label:'給油量', unit:'L（した日だけ）'}
 ];
+// ハウスの色のクラス名（hc0／hc2／hc3）
+function hc(h) { return 'hc' + String(h).charAt(0); }
 function md(s) { return String(s).slice(5).replace('-', '/'); }
 function jpDate(s) { var d = new Date(s + 'T12:00:00'); return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）'; }
 function wxIcon(d) { var w = weathers.filter(function (x) { return x.date === d; })[0]; return w && WX[w.weather] ? WX[w.weather] : ''; }
@@ -279,8 +290,6 @@ function showTab(t) {
   document.body.className = 'tab-' + t;
   document.querySelectorAll('section[data-tab]').forEach(function (s) { s.hidden = s.dataset.tab !== t; });
   document.querySelectorAll('#mainTabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-selected', b.dataset.tab === t); });
-  var c = getComputedStyle(document.body).getPropertyValue('--accent').trim();
-  document.querySelector('meta[name=theme-color]').setAttribute('content', c || '#286344');
   if (t === 'records') { chartToEnd = true; drawChart(); }
 }
 
@@ -394,7 +403,7 @@ function updateEvening() {
 function renderForm() {
   var d = $('date').value, r = byKey[house + '|' + d];
   function set(id, v) { $(id).value = v === null || v === undefined ? '' : v; }
-  document.querySelectorAll('b.hn').forEach(function (b) { b.textContent = house; });
+  document.querySelectorAll('b.hn').forEach(function (b) { b.textContent = house; b.className = 'hn ' + hc(house); });
   set('dilution', r && r.dilution); set('irrigationVolume', r && r.irrigationVolume); set('irrigationSeconds', r && r.irrigationSeconds);
   set('fertName', r && r.fertName); set('fertAmount', r && r.fertAmount);
   set('drainagePerBed', r ? (r.drainageOverflow ? 'F' : r.drainagePerBed) : '');
@@ -454,7 +463,8 @@ function load() {
 var hLimit = 30;
 function renderHistory() {
   var tm = gHouse === '3番';
-  $('chartTitle').textContent = gHouse + 'のグラフ'; $('histTitle').textContent = gHouse + 'の最近の記録';
+  var hs = '<span class="' + hc(gHouse) + '">' + esc(gHouse) + '</span>';
+  $('chartTitle').innerHTML = hs + 'のグラフ'; $('histTitle').innerHTML = hs + 'の最近の記録';
   $('histHead').innerHTML = '<tr><th>日付</th><th>倍率</th><th>' + (tm ? '給液時間' : '給液量') + '</th><th>排液量</th>' + (tm ? '' : '<th>排液率</th>') + '<th>給液EC</th><th>排液EC</th><th>最高/最低</th><th>重油</th><th>肥料</th></tr>';
   var all = records.filter(function (r) { return r.house === gHouse; }).sort(function (a, b) { return b.date.localeCompare(a.date); }).slice(0, 366);
   var shown = all.slice(0, hLimit);
@@ -482,8 +492,8 @@ function addDays(s, n) { var d = new Date(s + 'T12:00:00'); d.setDate(d.getDate(
 function axisKeys() {
   var e = $('date').value || today(), a = [], i;
   if (period === 'daily') { for (i = 364; i >= 0; i--) a.push(addDays(e, -i)); return a; }
-  var d = new Date(e + 'T12:00:00'); var start = addDays(e, -d.getDay());
-  for (i = 51; i >= 0; i--) a.push(addDays(start, -7 * i));
+  // 3日ごと：選んだ記録日で終わるように区切る（各点は3日間の始まりの日）
+  for (i = 121; i >= 0; i--) a.push(addDays(e, -2 - 3 * i));
   return a;
 }
 function aggregate(k, dates) {
@@ -545,7 +555,7 @@ function drawChart() {
   var sc = $('chartScroll'), keep = sc.scrollLeft;
   $('axR').style.display = groups.length > 1 ? '' : 'none';
   var axW = 48, avail = Math.max(200, ($('chart').parentNode.parentNode.clientWidth || 360) - axW * (groups.length > 1 ? 2 : 1));
-  var xs = axisKeys(), stepPx = period === 'daily' ? 26 : 44;
+  var xs = axisKeys(), stepPx = period === 'daily' ? 26 : 30;
   var w = Math.max(avail, PAD * 2 + (xs.length - 1) * stepPx), step = (w - PAD * 2) / (xs.length - 1);
   var x = setupCanvas($('chart'), w, h, dpr), xl = setupCanvas($('axL'), axW, h, dpr), xr = setupCanvas($('axR'), axW, h, dpr);
   $('legend').innerHTML = ks.map(function (k) { var m = METRICS[k]; return '<span><i style="background:' + m.color + '"></i>' + m.label + (m.unit ? '（' + m.unit + '）' : '') + '</span>'; }).join('');
@@ -554,15 +564,16 @@ function drawChart() {
   x.fillStyle = '#536258';
   xs.forEach(function (d, i) {
     var px = PAD + i * step;
-    if (period === 'daily') {
-      if (d.slice(8) === '01') { x.strokeStyle = '#c3cfc6'; x.beginPath(); x.moveTo(px, t); x.lineTo(px, t + ph + 62); x.stroke(); }
-      x.font = '14px system-ui'; x.textAlign = 'center'; x.fillText(wxIcon(d), px, t + ph + 18);
+    if (period === 'daily' || period === 'tri') {
+      // 月の初め（3日ごとは、その3日間に1日が入っている点）に縦線
+      if (d.slice(8) === '01' || (period === 'tri' && addDays(d, 2).slice(8) <= '02')) { x.strokeStyle = '#c3cfc6'; x.beginPath(); x.moveTo(px, t); x.lineTo(px, t + ph + 62); x.stroke(); }
+      if (period === 'daily') { x.font = '14px system-ui'; x.textAlign = 'center'; x.fillText(wxIcon(d), px, t + ph + 18); }
       x.font = '11px system-ui'; x.fillStyle = '#536258'; x.save(); x.translate(px + 4, t + ph + 26); x.rotate(-Math.PI / 2); x.textAlign = 'right'; x.fillText(md(d), 0, 0); x.restore();
     } else { x.font = '11px system-ui'; x.textAlign = 'center'; x.fillText(md(d), px, t + ph + 18); }
   });
   var series = {};
   ks.forEach(function (k) {
-    series[k] = xs.map(function (d) { var ds = [d]; if (period === 'weekly') { ds = []; for (var i = 0; i < 7; i++) ds.push(addDays(d, i)); } return aggregate(k, ds); });
+    series[k] = xs.map(function (d) { var ds = [d]; if (period === 'tri') { ds = []; for (var i = 0; i < 3; i++) ds.push(addDays(d, i)); } return aggregate(k, ds); });
   });
   var notes = [];
   groups.forEach(function (g, gi) {
@@ -601,7 +612,7 @@ function drawChart() {
       notes.push(m.label + (v.length ? '（' + fmt(Math.min.apply(null, v)) + '～' + fmt(Math.max.apply(null, v)) + m.unit + '）' : '（データなし）'));
     });
   });
-  $('chartNote').textContent = (period === 'daily' ? '日別・過去1年' : '週別・過去1年') + '・' + gHouse + '：' + notes.join(' ／ ') + '。' +
+  $('chartNote').textContent = (period === 'daily' ? '日別・過去1年' : '3日ごと（日付は3日間の初日）・過去1年') + '・' + gHouse + '：' + notes.join(' ／ ') + '。' +
     (groups.length > 2 ? '縦軸の数字は2種類までです（3種類目からは線だけ表示しています）。' : '') +
     (ks.indexOf('dilution') >= 0 ? '倍率は上下逆（下ほど水に近い）。' : '') + (ks.indexOf('drainageRatio') >= 0 ? 'Fは排液率から除外し、グラフ上端にFを表示します。' : '');
   sc.scrollLeft = chartToEnd ? sc.scrollWidth : keep; chartToEnd = false;
@@ -647,7 +658,7 @@ $('saveBtn').addEventListener('click', save);
 $('moreBtn').addEventListener('click', function () { hLimit = 366; renderHistory(); });
 document.querySelectorAll('#metrics input').forEach(function (i) { i.addEventListener('change', drawChart); });
 $('dailyBtn').addEventListener('click', function () { period = 'daily'; chartToEnd = true; $('dailyBtn').classList.add('on'); $('weeklyBtn').classList.remove('on'); drawChart(); });
-$('weeklyBtn').addEventListener('click', function () { period = 'weekly'; chartToEnd = true; $('weeklyBtn').classList.add('on'); $('dailyBtn').classList.remove('on'); drawChart(); });
+$('weeklyBtn').addEventListener('click', function () { period = 'tri'; chartToEnd = true; $('weeklyBtn').classList.add('on'); $('dailyBtn').classList.remove('on'); drawChart(); });
 window.addEventListener('resize', drawChart);
 $('keyBtn').addEventListener('click', function () {
   var k = $('keyInput').value.trim();
